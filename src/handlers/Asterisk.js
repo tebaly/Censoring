@@ -1,37 +1,31 @@
-export default {
-  /**
-   * The string to replaces found matches with. Defaults to ***
-   *
-   * @type {String}
-   */
-  char: '*',
-  count: 0,
+export default class {
+  constructor(count, char) {
+    this.charVariant = char || '*';
+    this.charCount = count || 0;
+    this.matches = [];
 
-  matches: [],
+    this.replace = this.replace.bind(this);
+  }
 
-  /**
-   * Set the string to replace matches in the filterString() method.
-   *
-   * @param   {String}    str
-   * @returns {Censoring}
-   */
-  setChar(char) {
-    if (typeof str !== 'string') {
-      throw new TypeError('Invalid replacementString type supplied. Expected string.');
+  char(char) {
+    if (char && typeof char === 'string') {
+      this.charVariant = char;
+      return this;
     }
-    this.char = char;
-    return this;
-  },
+    return this.charVariant;
+  }
 
-  /**
-   * @returns {String}
-   */
-  getChar() {
-    return this.char;
-  },
+  count(count) {
+    if (count && count > 0) {
+      this.charCount = count;
+      return this;
+    }
+    return this.charCount;
+  }
 
   replace(match) {
     this.matches.push(match);
-    return ''.padEnd(this.char, this.count || match.lenght);
-  },
-};
+    const count = this.charCount || match.length;
+    return new Array(count + 1).join(this.charVariant);
+  }
+}

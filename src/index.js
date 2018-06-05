@@ -1,14 +1,16 @@
 import Filters from './Filters';
+import Plugable from './Pluggable';
 
-export default {
-  $filters: Filters,
+function Censoring() {
+  this.subject = '';
+  this.prepared = '';
+  this.$filters = new Filters();
+}
 
-  _plugins: [],
+Plugable(Censoring);
 
-  subject: '',
-  prepared: '',
-
-  matched() {
+Censoring.prototype = {
+  test() {
     return this.prepared && this.prepared !== this.subject;
   },
 
@@ -35,19 +37,6 @@ export default {
     this.prepared = this.$filters.handle(text);
     return this.prepared;
   },
-
-  use(plugin, ...args) {
-    if (this.plugins.indexOf(plugin) > -1) {
-      return this;
-    }
-    // additional parameters
-    args.unshift(this);
-    if (typeof plugin.install === 'function') {
-      plugin.install(...args);
-    } else if (typeof plugin === 'function') {
-      plugin(...args);
-    }
-    this.plugins.push(plugin);
-    return this;
-  },
 };
+
+export default Censoring;

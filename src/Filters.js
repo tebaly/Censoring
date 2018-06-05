@@ -1,40 +1,44 @@
 import Asterisk from './handlers/Asterisk';
 
-export default {
-  matches: [],
-  handler: Asterisk,
+/* eslint-disable no-useless-escape */
 
-  /**
-   * The available patterns. These are as follows:
-   *  [name]              [description]
-   *  - long_number       ; Matches long, consecutive numbers
-   *  - phone_number      ; Matches phone numbers.
-   *  - email_address     ; Matches email addresses in many formats.
-   *  - url               ; Matches URL patterns
-   */
-  /* eslint-disable no-useless-escape */
-  list: {
-    long_number: {
-      pattern: /\d{8,}/,
-      enabled: true,
-      handler: this.handler,
-    },
-    phone_number: {
-      pattern: /([+-]?[\d]{1,}[\d\s-]+|\([\d]+\))[-\d.\s]{8,}/gi,
-      enabled: true,
-      handler: this.handler,
-    },
-    email_address: {
-      pattern: /[\w._%+-]+(@|\[at\]|\(at\))[\w.-]+(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])[a-zA-Z]{2,4}/gi,
-      enabled: true,
-      handler: this.handler,
-    },
-    url: {
-      pattern: /((https?:\/{1,2})?([-\w]\.{0,1}){2,}(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])([a-zA-Z]{2}\.[a-zA-Z]{2,3}|[a-zA-Z]{2,4}).*?(?=$|[^\w\/-]))/gi,
-      enabled: true,
-      handler: this.handler,
-    },
-  },
+/**
+ * The available patterns. These are as follows:
+ *  [name]              [description]
+ *  - long_number       ; Matches long, consecutive numbers
+ *  - phone_number      ; Matches phone numbers.
+ *  - email_address     ; Matches email addresses in many formats.
+ *  - url               ; Matches URL patterns
+ */
+
+export default class {
+  constructor() {
+    this.handler = new Asterisk();
+    this.matches = [];
+    this.list = {
+      long_number: {
+        pattern: /\d{8,}/,
+        enabled: true,
+        handler: this.handler,
+      },
+      phone_number: {
+        pattern: /([+-]?[\d]{1,}[\d\s-]+|\([\d]+\))[-\d.\s]{8,}/gi,
+        enabled: true,
+        handler: this.handler,
+      },
+      email_address: {
+        pattern: /[\w._%+-]+(@|\[at\]|\(at\))[\w.-]+(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])[a-zA-Z]{2,4}/gi,
+        enabled: true,
+        handler: this.handler,
+      },
+      url: {
+        pattern: /((https?:\/{1,2})?([-\w]\.{0,1}){2,}(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])([a-zA-Z]{2}\.[a-zA-Z]{2,3}|[a-zA-Z]{2,4}).*?(?=$|[^\w\/-]))/gi,
+        enabled: true,
+        handler: this.handler,
+      },
+    };
+  }
+
 
   /**
    * Add a pattern to the list of filters. This will allow you to enable / disable them.
@@ -43,23 +47,33 @@ export default {
    * @param {{pattern: RegExp, enabled: boolean}} filter
    */
   add(name, filter) {
+    if (!filter.handler) {
+      filter.handler = this.handler;
+    }
+    if (filter.enabled === undefined) {
+      filter.enabled = true;
+    }
     this.list[name] = filter;
-  },
+  }
+
+  get(name) {
+    return this.list[name];
+  }
 
   /**
    * Enable a filter by name.
    *
-   * @param   {String}    filter
+   * @param   {String}    name
    * @param   {Boolean}   enabled
    * @returns {Censoring}
    */
-  toggleFilter(filter, enabled) {
-    if (typeof this.list[filter] === 'undefined') {
+  toggleFilter(name, enabled) {
+    if (typeof this.list[name] === 'undefined') {
       throw new TypeError('Invalid filter supplied.');
     }
-    this.list[filter].enabled = (enabled === true);
+    this.list[name].enabled = (enabled === true);
     return this;
-  },
+  }
 
   /**
    * Enable multiple filters at once.
@@ -68,33 +82,32 @@ export default {
    * @returns {Censoring}
    * @see     Censoring.enableFilter
    */
-  toggleFilters(filters, enabled) {
-    if (filters instanceof Array) {
-      for (let i = 0; i < filters.length; i++) {
-        this.toggleFilter(filters[i], enabled);
+  toggle(names, enabled) {
+    if (names instanceof Array) {
+      for (let i = 0; i < names.length; i++) {
+        this.toggleFilter(names[i], enabled);
       }
     } else {
-      this.toggleFilter(filters, enabled);
+      this.toggleFilter(names, enabled);
     }
-
     return this;
-  },
+  }
 
   /**
-   * Disable a filter by name.
+   * Enable a filters by name.
    *
-   * @param   {String}    filter
+   * @param   {String}    name
    * @returns {Censoring}
    */
-  enableFilter(filter) {
-    this.toggleFilters(filter, true);
+  enable(name) {
+    this.toggle(name, true);
     return this;
-  },
+  }
 
-  disableFilter(filter) {
-    this.toggleFilters(filter, false);
+  disable(name) {
+    this.toggle(name, false);
     return this;
-  },
+  }
 
 
   /**
@@ -103,18 +116,19 @@ export default {
    * @returns {Boolean}
    */
   test() {
-    return this.matches.length ? this.matches : false;
-  },
+    return this.matches.length > 0;
+  }
 
   /* eslint-disable no-restricted-syntax */
   handle(text) {
     let result = text;
-    for (const {enabled, pattern, handler} in this.$filters.list) {
+    const filters = Object.values(this.list);
+    for (const {enabled, pattern, handler} of filters) {
       if (enabled && pattern instanceof RegExp) {
-        result = text.replace(pattern, handler.replace);
-        this.matches.concat(handler.matches);
+        result = result.replace(pattern, handler.replace);
+        this.matches = this.matches.concat(handler.matches);
       }
     }
     return result;
-  },
-};
+  }
+}
