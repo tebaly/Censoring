@@ -16,8 +16,13 @@ describe('Censoring', () => {
     // expect(obj.use).toBe(1);
   });
 
-  it('first', () => {
-    const result = obj.filter('Hello support@gmail.com world');
-    expect(result).toBe(2);
+  it('default filter count', () => {
+    // Object.keys(obj.$filters.list).length;
+    expect(Object.keys(obj.$filters.list).length).toBe(4);
   });
+
+  // it('first', () => {
+  //   const result = obj.filter('Hello support@gmail.com world');
+  //   expect(result).toBe(2);
+  // });
 });

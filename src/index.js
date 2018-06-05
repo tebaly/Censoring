@@ -1,15 +1,19 @@
 import Filters from './Filters';
 import Plugable from './Pluggable';
 
+import EmailCensor from './plugins/EmailCensor';
+import UrlCensor from './plugins/UrlCensor';
+
 function Censoring() {
   this.subject = '';
   this.prepared = '';
-  this.$filters = new Filters();
 }
 
 Plugable(Censoring);
 
 Censoring.prototype = {
+  $filters: new Filters(),
+
   test() {
     return this.prepared && this.prepared !== this.subject;
   },
@@ -38,5 +42,9 @@ Censoring.prototype = {
     return this.prepared;
   },
 };
+
+
+Censoring.use(EmailCensor);
+Censoring.use(UrlCensor);
 
 export default Censoring;

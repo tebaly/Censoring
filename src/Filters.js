@@ -26,16 +26,6 @@ export default class {
         enabled: true,
         handler: this.handler,
       },
-      email_address: {
-        pattern: /[\w._%+-]+(@|\[at\]|\(at\))[\w.-]+(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])[a-zA-Z]{2,4}/gi,
-        enabled: true,
-        handler: this.handler,
-      },
-      url: {
-        pattern: /((https?:\/{1,2})?([-\w]\.{0,1}){2,}(\.|\[dot\]|\(dot\)|\(punt\)|\[punt\])([a-zA-Z]{2}\.[a-zA-Z]{2,3}|[a-zA-Z]{2,4}).*?(?=$|[^\w\/-]))/gi,
-        enabled: true,
-        handler: this.handler,
-      },
     };
   }
 
