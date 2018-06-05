@@ -7,15 +7,16 @@ export default class {
     this.replace = this.replace.bind(this);
   }
 
-  char(char) {
-    if (char && typeof char === 'string') {
-      this.charVariant = char;
-      return this;
-    }
+  set char(char) {
+    this.charVariant = char;
+    return this;
+  }
+
+  get char() {
     return this.charVariant;
   }
 
-  count(count) {
+  set count(count) {
     if (count && count > 0) {
       this.charCount = count;
       return this;

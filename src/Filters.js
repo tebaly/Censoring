@@ -15,18 +15,8 @@ export default class {
   constructor() {
     this.handler = new Asterisk();
     this.matches = [];
-    this.list = {
-      long_number: {
-        pattern: /\d{8,}/,
-        enabled: true,
-        handler: this.handler,
-      },
-      phone_number: {
-        pattern: /([+-]?[\d]{1,}[\d\s-]+|\([\d]+\))[-\d.\s]{8,}/gi,
-        enabled: true,
-        handler: this.handler,
-      },
-    };
+
+    this.list = {};
   }
 
 

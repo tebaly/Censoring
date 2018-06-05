@@ -7,36 +7,35 @@ describe('Filters', () => {
   it('Дефолтный обработчик', () => {
     expect('****').toBe(obj.handler.replace('word'));
   });
-  xit('Дефолтный filter enable', () => {
-    expect(true).toBe(obj.list.url.enabled);
-  });
-  xit('Дефолтный filter disabled', () => {
-    obj.disable('url');
-    expect(false).toBe(obj.list.url.enabled);
-  });
+  // xit('Дефолтный filter enable', () => {
+  //   expect(true).toBe(obj.list.url.enabled);
+  // });
+  // xit('Дефолтный filter disabled', () => {
+  //   obj.disable('url');
+  //   expect(false).toBe(obj.list.url.enabled);
+  // });
 
 
   it('Add filter', () => {
-    obj.add('word', {
-      pattern: /word/gi,
-    });
+    obj.add('word', { pattern: /word/gi });
     expect(true).toBe(obj.list.word.enabled);
   });
   it('Get new filter word', () => {
-    obj.add('word', {
-      pattern: /word/gi,
-    });
+    obj.add('word', { pattern: /word/gi });
     expect(true).toBe(obj.get('word').enabled);
   });
-  xit('toggleFilter', () => {
-    obj.toggleFilter('url', false);
-    expect(false).toBe(obj.get('url').enabled);
+  it('toggleFilter', () => {
+    obj.add('word', { pattern: /word/gi });
+    obj.toggleFilter('word', false);
+    expect(obj.get('word').enabled).toBe(false);
   });
 
-  xit('toggle', () => {
-    obj.toggle(['url', 'phone_number'], false);
-    expect(false).toBe(obj.get('phone_number').enabled);
-    expect(true).toBe(obj.get('long_number').enabled);
+  it('toggle', () => {
+    obj.add('hello', { pattern: /hello/gi });
+    obj.add('word', { pattern: /word/gi });
+    obj.toggle(['hello', 'word'], false);
+    expect(obj.get('hello').enabled).toBe(false);
+    expect(obj.get('word').enabled).toBe(false);
   });
 
   it('handle matches test', () => {

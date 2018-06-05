@@ -18,7 +18,7 @@ describe('Censoring', () => {
 
   it('default filter count', () => {
     // Object.keys(obj.$filters.list).length;
-    expect(Object.keys(obj.$filters.list).length).toBe(4);
+    expect(Object.keys(Censoring.$filters.list).length).toBe(4);
   });
 
   // it('first', () => {

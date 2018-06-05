@@ -5,7 +5,7 @@ describe('Длина строки ', () => {
   beforeEach(() => { obj = new Asterisk(); });
 
   it('Дефолтное значение', () => {
-    obj.count(3);
+    obj.count = 3;
     expect('***').toBe(obj.replace('word'));
   });
   it('Равно длине строки', () => {
@@ -18,7 +18,7 @@ describe('Длина строки ', () => {
     expect(obj.matches[1]).toBe('word');
   });
   it('Символ', () => {
-    obj.char('+');
+    obj.char = '+';
     expect('++++').toBe(obj.replace('word'));
   });
 
