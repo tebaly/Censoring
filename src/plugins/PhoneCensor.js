@@ -1,7 +1,8 @@
+// Matches phone numbers.
 export default {
-  pattern: /([+-]?[\d]{1,}[\d\s-]+|\([\d]+\))[-\d.\s]{8,}/gi,
+  pattern: /([+-]?[\d]{1,}?[\d\s-]+?|\([\d]+?\))[()-\d.\s]{4,}\d/gi,
 
-  install({$filters}) {
+  install({prototype: {$filters}}) {
     $filters.add('phone_number', {pattern: this.pattern});
   },
 };

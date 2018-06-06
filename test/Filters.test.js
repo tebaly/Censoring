@@ -1,4 +1,5 @@
 import Filters from '../src/Filters';
+import Placeholder from '../src/handlers/Placeholder';
 
 describe('Filters', () => {
   let obj;
@@ -7,14 +8,6 @@ describe('Filters', () => {
   it('Дефолтный обработчик', () => {
     expect('****').toBe(obj.handler.replace('word'));
   });
-  // xit('Дефолтный filter enable', () => {
-  //   expect(true).toBe(obj.list.url.enabled);
-  // });
-  // xit('Дефолтный filter disabled', () => {
-  //   obj.disable('url');
-  //   expect(false).toBe(obj.list.url.enabled);
-  // });
-
 
   it('Add filter', () => {
     obj.add('word', { pattern: /word/gi });
@@ -44,7 +37,19 @@ describe('Filters', () => {
     });
     const result = obj.handle('Hello word or world');
     expect('Hello **** or world').toBe(result);
-    expect(true).toBe(obj.test());
-    expect(1).toBe(obj.matches.length);
+    expect(obj.test()).toBe(true);
+    expect(obj.matches.length).toBe(1);
+  });
+
+
+  it('change handler', () => {
+    obj = new Filters(new Placeholder());
+    obj.add('word', {
+      pattern: /word/gi,
+    });
+    const result = obj.handle('Hello word or world');
+    expect('Hello [CENSORED-TEXT] or world').toBe(result);
+    expect(obj.test()).toBe(true);
+    expect(obj.matches.length).toBe(1);
   });
 });

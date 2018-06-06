@@ -1,4 +1,5 @@
 import Censoring from '../src';
+import Placeholder from '../src/handlers/Placeholder';
 
 describe('Censoring', () => {
   let obj;
@@ -18,11 +19,18 @@ describe('Censoring', () => {
 
   it('default filter count', () => {
     // Object.keys(obj.$filters.list).length;
-    expect(Object.keys(Censoring.$filters.list).length).toBe(4);
+    expect(Object.keys(obj.$filters.list).length).toBe(4);
   });
 
-  // it('first', () => {
-  //   const result = obj.filter('Hello support@gmail.com world');
-  //   expect(result).toBe(2);
-  // });
+  it('first', () => {
+    const result = obj.filter('Hello support@gmail.com world');
+          expect(result).toBe('Hello ***************** world');
+  });
+
+  it('reset filter', () => {
+    obj = new Censoring();
+    obj.$filters.setHandlers(new Placeholder);
+    const result = obj.filter('Hello support@gmail.com world');
+    expect(result).toBe('Hello [CENSORED-TEXT] world');
+  });
 });

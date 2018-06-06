@@ -1,31 +1,18 @@
 import Asterisk from './handlers/Asterisk';
 
-/* eslint-disable no-useless-escape */
+function Filters(handler) {
+  this.handler = handler || new Asterisk();
+  this.matches = [];
+  this.list = {};
+}
 
-/**
- * The available patterns. These are as follows:
- *  [name]              [description]
- *  - long_number       ; Matches long, consecutive numbers
- *  - phone_number      ; Matches phone numbers.
- *  - email_address     ; Matches email addresses in many formats.
- *  - url               ; Matches URL patterns
- */
+Filters.prototype = {
+  setHandlers(handler) {
+    for (const name of Object.keys(this.list)) {
+      this.list[name].handler = handler;
+    }
+  },
 
-export default class {
-  constructor() {
-    this.handler = new Asterisk();
-    this.matches = [];
-
-    this.list = {};
-  }
-
-
-  /**
-   * Add a pattern to the list of filters. This will allow you to enable / disable them.
-   *
-   * @param {string}                              name
-   * @param {{pattern: RegExp, enabled: boolean}} filter
-   */
   add(name, filter) {
     if (!filter.handler) {
       filter.handler = this.handler;
@@ -34,34 +21,20 @@ export default class {
       filter.enabled = true;
     }
     this.list[name] = filter;
-  }
+  },
 
   get(name) {
     return this.list[name];
-  }
+  },
 
-  /**
-   * Enable a filter by name.
-   *
-   * @param   {String}    name
-   * @param   {Boolean}   enabled
-   * @returns {Censoring}
-   */
   toggleFilter(name, enabled) {
     if (typeof this.list[name] === 'undefined') {
       throw new TypeError('Invalid filter supplied.');
     }
     this.list[name].enabled = (enabled === true);
     return this;
-  }
+  },
 
-  /**
-   * Enable multiple filters at once.
-   *
-   * @param   {Array}     filters
-   * @returns {Censoring}
-   * @see     Censoring.enableFilter
-   */
   toggle(names, enabled) {
     if (names instanceof Array) {
       for (let i = 0; i < names.length; i++) {
@@ -71,33 +44,21 @@ export default class {
       this.toggleFilter(names, enabled);
     }
     return this;
-  }
+  },
 
-  /**
-   * Enable a filters by name.
-   *
-   * @param   {String}    name
-   * @returns {Censoring}
-   */
   enable(name) {
     this.toggle(name, true);
     return this;
-  }
+  },
 
   disable(name) {
     this.toggle(name, false);
     return this;
-  }
+  },
 
-
-  /**
-   * Returns matches array or FALSE
-   *
-   * @returns {Boolean}
-   */
   test() {
     return this.matches.length > 0;
-  }
+  },
 
   /* eslint-disable no-restricted-syntax */
   handle(text) {
@@ -110,5 +71,7 @@ export default class {
       }
     }
     return result;
-  }
+  },
 }
+
+export default Filters;

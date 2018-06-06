@@ -1,3 +1,4 @@
+// Matches long, consecutive numbers
 export default {
   count: 5,
 
@@ -6,7 +7,7 @@ export default {
     return new RegExp(`\\d{${num},}`);
   },
 
-  install({$filters}) {
+  install({prototype: {$filters}}) {
     $filters.add('long_number', {pattern: this.pattern()});
   },
 };
