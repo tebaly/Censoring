@@ -7,10 +7,9 @@ import EmailCensor from './plugins/EmailCensor';
 import UrlCensor from './plugins/UrlCensor';
 
 function Censoring(handler, filters) {
+  this.$filters = filters || Object.assign(this.$filters, {});
   if (handler) {
     this.$filters.setHandlers(handler);
-  } else if (filters) {
-    this.$filters = filters;
   }
   this.subject = '';
   this.prepared = '';
@@ -34,6 +33,10 @@ Censoring.prototype = {
    */
   result() {
     return this.prepared;
+  },
+
+  triggered(name) {
+
   },
 
   /**

@@ -2,8 +2,9 @@ import Asterisk from './handlers/Asterisk';
 
 function Filters(handler) {
   this.handler = handler || new Asterisk();
-  this.matches = [];
   this.list = {};
+  this.matches = [];
+  this.triggers = [];
 }
 
 Filters.prototype = {
@@ -60,14 +61,31 @@ Filters.prototype = {
     return this.matches.length > 0;
   },
 
-  /* eslint-disable no-restricted-syntax */
+  trigger(name, matches) {
+    if (matches.length) {
+      this.matches = this.matches.concat(matches);
+      this.triggers.push(name);
+    }
+  },
+
+  isTriggered(name) {
+    return this.triggers.indexOf(name) >= 0;
+  },
+
+  resetState() {
+    this.matches = [];
+    this.triggers = [];
+  },
+
   handle(text) {
     let result = text;
-    const filters = Object.values(this.list);
-    for (const {enabled, pattern, handler} of filters) {
+    this.resetState();
+    for (let name in this.list) {
+      let {enabled, pattern, handler} = this.list[name];
       if (enabled && pattern instanceof RegExp) {
+        handler.matches = [];
         result = result.replace(pattern, handler.replace);
-        this.matches = this.matches.concat(handler.matches);
+        this.trigger(name, handler.matches);
       }
     }
     return result;

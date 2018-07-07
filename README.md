@@ -1,209 +1,59 @@
 # Censoring
-This module allows you to detect patterns in texts, even when attempted to be hidden and then either highlight (markup) or censor (replace) them.
-It checks for upper casing, lower casing, 1337 replacements, or s,p-l.'i*t.
 
-**Note:** This module works in the browser as a global, or AMD module, as well as in node.js.
+Модуль для простого цензурирования сообщений. Сам по себе модульный, поддерживает расширение плагинами. Фильтры, в том числе встроенные, добавляются через _плагины_. Есть возможность добавлять и удалять фильтры используя соответствующие методы `add` и `delete`. 
 
-## Example:
+## Фильтры
 
-```javascript
-var Censoring    = require('censoring'),
-    scan         = new Censoring(),
-    testSentence = '';
+Грубо говоря - это обычное _регулярное выражение_. Чтобы иметь возможность управлять регуляркой, ему дается _имя_, _состояние_ и _обработчик_. Состояние позволяет _включить_ или _выключить_ фильтр. По имени фильтр можно _удалить_ из списка, например. _Обработчик_, это функция, класс или модуль, которые включают логику о том, что делать с текстом, если _сработал паттерн_ регулярного выражения. Для каждого экземпляра можно настроить свой список фильтров.
 
-// Enable filters we want to use
-scan.enableFilters(['phone_number', 'email_address', 'words']);
+## Обработчик
 
-// Word
-testSentence += 'The 1nt3r.n.e.t will not be censored! ';
+Функция, класс или модуль, которые включают логику обработки текста. Например, найденный текст можно _заменить звездочками_. Количество звездочек можно настроить. Либо это будет стандартно 3 звездочки, либо количество равное длине слова. Также можно установить _фильтр подсвечивающий_ найденное слово, либо заменяющий на стандартный _текст заглушку_. Для каждого фильтра можно добавить свой обработчик. 
 
-// Phone number
-testSentence += 'Call me on 555-123456';
+Обработчик должен иметь только один метод `replace` - функция, которая под капотом подставляется вторым аргументом в одноименную `String.prototype.replace()`. От вас нужена только сама функция, если хотите добавить свою логику. Либо используйте имеющиеся обработчики.
 
-// Email address
-testSentence += ', or send an email to me[at]example(dot)com.';
+## Плагин
 
-// Let's make the word internet illegal.
-scan.addFilterWord('internet');
+Это очень простые файлы, которые содержат лишь голый _паттерн регулярки_ и метод `install` - который добавляет новый фильтр в список фильтров. Метод получает экземпляр модуля и опции в виде параметров. 
 
-// Tell the scanner we're done, and it can prepare the results.
-scan.prepare(testSentence);
+Логику самого плагина вы вправе писать какую угодно. Чаще всего через плагины добавляются новые фильтры, по одному на каждый плагин. Хорошим тоном будет добавить паттерн как отдельное свойство плагина `pattern` - тогда его будет легко получить из плагина в любой другой библиотеке или внешнем модуле.
 
-// Did we have a match?
-if (scan.test()) {
-  console.log(
-    'We had a match! Here it is, but censored:',
-    scan.replace()
-  );
+# Использование
 
-  // The *** will not be censored! Call me on ***, or send an email to ***.
-}
+```
+var Censor = new Censoring();
+var prepared = Censor.filter('Плохой текст, support@google.com - емайл');
+// prepared - Плохой текст, ****************** - емайл
 ```
 
+Конструтор принимает два необязательных параметра `handler` и `filters`. Первый устанавливает _глобальный обработчик_ для всех фильтров. Второй _заменяет собой_ список предустановленных фильтров. Можно просто _отключить_ ненужные и _добавить_ необходимые фильтры, а можно установить полностью свой список.
 
-## Installation
-`npm install --save censoring`
+### $filters 
 
-## Filters
+Объект для работы с фильтрами. Через него можно управлять списком фильтров
 
-| Pattern       | Description                              |
-| :------------ | :----------------------------------------|
-| long_number   | Matches long, consecutive numbers        |
-| phone_number  | Matches phone numbers.                   |
-| email_address | Matches email addresses in many formats. |
-| url           | Matches URL patterns.                    |
-| words         | Finds words, even when in disguise.      |
+#### add(name, filter) - добавить фильтр
 
-## Methods
-A `Censoring` instance has the following methods.
+#### get(name) - получить
+#### toggle(name) - включить/выключить
+#### enable(name) - включить
+#### disable(name) - выключить
 
-### .enableFilter(string filterName)
-Enable a filter from the list of filters. By default, they're all disabled.
+## Изменить обработчики
 
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('email_address');
+```
+var handler = new handlers/Placeholder();
+var Censor = new Censoring(handler);
 ```
 
-### .enableFilters(Array filterNames)
-Enable multiple filters from the list of filters. By default, they're all disabled.
+По умолчанию просто звездочки. Но даже сами звездочки можно перенастроить.
+ 
+## Свой список
 
-```javascript
-var scan = new Censoring();
-
-scan.enableFilters(['phone_number', 'email_address']);
+```
+var Filters = new Filters();
+// ... Настроили список как хотим
+var Censor = new Censoring(null, Filters);
 ```
 
-### .disableFilter(string filterName)
-Disable a previously enabled filter.
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('email_address');
-scan.disableFilter('email_address');
-```
-
-### .addFilterWords(Array filterWords)
-Add multiple words to filter on.
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('words');
-scan.addFilterWords(['stoopid head', 'big meany']);
-```
-
-### .addFilterWord(string filterWord)
-Add a word to filter on.
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('words');
-scan.addFilterWord('doody face');
-```
-
-### .setReplacementString(string replacementString)
-Set the string to replace matches with. Defaults to `***`.
-
-```javascript
-var scan = new Censoring();
-
-scan.setReplacementString('pony');
-```
-
-### .getReplacementString()
-Get the currently set replacement string.
-
-```javascript
-var scan = new Censoring();
-
-scan.getReplacementString(); // Returns '***'
-```
-
-### .setHighlightColor(string hexCode)
-Set the color for highlighted occurrences. Defaults to `#F2B8B8`.
-
-```javascript
-var scan = new Censoring();
-
-scan.setHighlightColor('#ff0');
-```
-
-### .prepare(string inputString[, bool highlight])
-Prepare a string, and optionally supply `highlight` to not replace occurrences, but highlight them using html.
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('email_address');
-scan.prepare('me@example[dot]com', true);
-```
-
-### .test()
-Test if the string you've prepared matches any of the filters.
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('email_address');
-scan.prepare('me@example[dot]com');
-
-if (scan.test()) {
-  console.log('We have a match!');
-}
-```
-
-### .replace()
-Replace all occurrences found in the prepared string.
-
-> Note: This will return HTML with the matches highlighted if the scan was prepared with .prepare(txt, true).
-
-```javascript
-var scan = new Censoring();
-
-scan.enableFilter('email_address');
-scan.prepare('Email me at me@example[dot]com');
-
-console.log(scan.replace());
-// Outputs: Email me at ***
-```
-
-### .filterString(string inputString[, bool highlight])
-Filter a string directly, without preparing it first.
-
-> Note: Bad for performance When combined with `.test()` and `.replace`.
-
-```javascript
-var scan = new Censoring(),
-    testString = "I'm going to tell mommy that you're a big meany!",
-    result;
-
-scan.enableFilter('words');
-scan.addFilterWord(['stoopid head', 'big meany']);
-
-result = scan.filterString(testString);
-
-console.log(result);
-// Outputs: I'm going to tell mommy that you're a ***!
-```
-
-### .addFilter(string name)
-Add a new filter. A filter is essentially a `name` and a `pattern`.
-
-```javascript
-var scan = new Censoring();
-
-scan.addFilter('bigot', {
-    enabled: true,
-    pattern: /^I'm not a racist,? but/
-});
-```
-
-## Support / contributing
-If you have any questions or feature requests (such as publishing on bower..?) you can:
-
-* Check out the issues
-* Join us on freenode (#spoonx)
+Когда очень нужны только свои фильтры или индивидуальные обработчики вместо дефолтного. Любые другие причины.
