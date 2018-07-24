@@ -16,12 +16,11 @@ export default {
 
   pattern() {
     let result = '';
-    let i = 0;
-    for (var word of this.words) {
-      result += i ? '|' : ''; i++;
-      result += this.wrap(word);
+    for (var i = 0; i < this.words.length; i++) {
+      result += i ? '|' : '';
+      result += this.wrap(this.words[i]);
     }
-    return new RegExp(`${result}`);
+    return new RegExp(`${result}`, 'gi');
   },
 
   install({prototype: {$filters}}) {

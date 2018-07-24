@@ -29,7 +29,7 @@ export default {
       result += `(${num[0]}|${num[1]}|${num[2]}|\\d).*?`;
     }
     const repeat = count || this.count;
-    return new RegExp(`(${result}){${repeat},}`);
+    return new RegExp(`(${result}){${repeat},}`, 'gi');
   },
 
   install({prototype: {$filters}}) {
